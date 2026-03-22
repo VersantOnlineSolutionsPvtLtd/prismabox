@@ -3,6 +3,8 @@ Generate versatile [typebox](https://github.com/sinclairzx81/typebox) schemes fr
 
 > Currently does not support [mongoDB composite types](https://www.prisma.io/docs/orm/prisma-schema/data-model/models#defining-composite-types)
 
+> Development is currently on hold, please see [here](https://github.com/m1212e/prismabox/issues/59) 
+
 Install it in your project,
 ```bash
 npm i -D prismabox
