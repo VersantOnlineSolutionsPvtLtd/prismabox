@@ -1,5 +1,6 @@
 import { type Static, Type } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
+import { debug } from "./debug";
 
 const configSchema = Type.Object(
   {
@@ -84,6 +85,10 @@ const configSchema = Type.Object(
      * The prefix to add to exported types
      */
     exportedTypePrefix: Type.String({ default: "" }),
+    /**
+     * Disables Prettier formatting of generated files. Significantly speeds up generation for large schemas.
+     */
+    disableFormatting: Type.Boolean({ default: false }),
   },
   { additionalProperties: false },
 );
@@ -96,6 +101,7 @@ export function setConfig(input: unknown) {
     Value.Clean(configSchema, input);
     Value.Default(configSchema, input);
     config = Value.Decode(configSchema, Value.Convert(configSchema, input));
+    debug(`config: inputModel=${config.inputModel}, useJsonTypes=${config.useJsonTypes}, additionalProperties=${config.additionalProperties}`);
     Object.freeze(config);
   } catch (error) {
     console.error(Value.Errors(configSchema, input).First);

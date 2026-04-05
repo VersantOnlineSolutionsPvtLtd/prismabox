@@ -1,6 +1,7 @@
 import { access, mkdir, rm } from "node:fs/promises";
 import { generatorHandler } from "@prisma/generator-helper";
 import { getConfig, setConfig } from "./config";
+import { debug, timed, timedAsync } from "./debug";
 import { processEnums } from "./generators/enum";
 import { processInclude } from "./generators/include";
 import { processOrderBy } from "./generators/orderBy";
@@ -30,6 +31,12 @@ generatorHandler({
       output: options.generator.output?.value,
     });
 
+    const models = options.dmmf.datamodel.models;
+    const enums = options.dmmf.datamodel.enums;
+    debug(`output: ${getConfig().output}`);
+    debug(`models: ${models.length}, enums: ${enums.length}`);
+    debug(`inputModel: ${getConfig().inputModel}`);
+
     try {
       await access(getConfig().output);
       await rm(getConfig().output, { recursive: true });
@@ -37,21 +44,27 @@ generatorHandler({
 
     await mkdir(getConfig().output, { recursive: true });
 
-    processEnums(options.dmmf.datamodel.enums);
-    processPlain(options.dmmf.datamodel.models);
-    processRelations(options.dmmf.datamodel.models);
-    processWhere(options.dmmf.datamodel.models);
-    processWhereUnique(options.dmmf.datamodel.models);
+    timed(`processEnums: ${enums.length} enums`, () => processEnums(enums));
+    timed(`processPlain: ${models.length} models`, () => processPlain(models));
+    timed("processRelations", () => processRelations(models));
+    timed("processWhere", () => processWhere(models));
+    timed("processWhereUnique", () => processWhereUnique(models));
     if (getConfig().inputModel) {
-      processPlainInputCreate(options.dmmf.datamodel.models);
-      processPlainInputUpdate(options.dmmf.datamodel.models);
-      processRelationsInputCreate(options.dmmf.datamodel.models);
-      processRelationsInputUpdate(options.dmmf.datamodel.models);
+      timed("processPlainInputCreate", () => processPlainInputCreate(models));
+      timed("processPlainInputUpdate", () => processPlainInputUpdate(models));
+      timed("processRelationsInputCreate", () =>
+        processRelationsInputCreate(models),
+      );
+      timed("processRelationsInputUpdate", () =>
+        processRelationsInputUpdate(models),
+      );
     }
-    processSelect(options.dmmf.datamodel.models);
-    processInclude(options.dmmf.datamodel.models);
-    processOrderBy(options.dmmf.datamodel.models);
+    timed("processSelect", () => processSelect(models));
+    timed("processInclude", () => processInclude(models));
+    timed("processOrderBy", () => processOrderBy(models));
 
-    await write();
+    await timedAsync("write (format + disk)", () => write());
+
+    debug("generation complete");
   },
 });

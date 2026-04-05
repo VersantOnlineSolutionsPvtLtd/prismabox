@@ -2,9 +2,10 @@ import type { DMMF } from "@prisma/generator-helper";
 import { extractAnnotations } from "../annotations/annotations";
 import { generateTypeboxOptions } from "../annotations/options";
 import { getConfig } from "../config";
+import { debug } from "../debug";
 import type { ProcessedModel } from "../model";
-import { processedEnums } from "./enum";
-import { processedPlain } from "./plain";
+import { processedEnumsMap } from "./enum";
+import { processedPlainMap } from "./plain";
 import { isPrimitivePrismaFieldType } from "./primitiveField";
 import { wrapWithArray } from "./wrappers/array";
 import { wrapWithNullable } from "./wrappers/nullable";
@@ -21,6 +22,7 @@ export function processRelations(
       processedRelations.push({ name: m.name, stringRepresentation: o });
     }
   }
+  debug(`  relations: ${processedRelations.length} of ${models.length} models`);
   Object.freeze(processedRelations);
 }
 
@@ -35,13 +37,13 @@ export function stringifyRelations(data: DMMF.Model) {
       if (
         annotations.isHidden ||
         isPrimitivePrismaFieldType(field.type) ||
-        processedEnums.find((e) => e.name === field.type)
+        processedEnumsMap.has(field.type)
       ) {
         return undefined;
       }
 
-      let stringifiedType = processedPlain.find(
-        (e) => e.name === field.type,
+      let stringifiedType = processedPlainMap.get(
+        field.type,
       )?.stringRepresentation;
 
       if (!stringifiedType) {
@@ -70,8 +72,12 @@ export const processedRelationsInputCreate: ProcessedModel[] = [];
 export function processRelationsInputCreate(
   models: DMMF.Model[] | Readonly<DMMF.Model[]>,
 ) {
+  const modelsMap = new Map<string, DMMF.Model>();
   for (const m of models) {
-    const o = stringifyRelationsInputCreate(m, models);
+    modelsMap.set(m.name, m);
+  }
+  for (const m of models) {
+    const o = stringifyRelationsInputCreate(m, modelsMap);
     if (o) {
       processedRelationsInputCreate.push({
         name: m.name,
@@ -84,7 +90,7 @@ export function processRelationsInputCreate(
 
 export function stringifyRelationsInputCreate(
   data: DMMF.Model,
-  allModels: DMMF.Model[] | Readonly<DMMF.Model[]>,
+  allModels: Map<string, DMMF.Model>,
 ) {
   const annotations = extractAnnotations(data.documentation);
   if (
@@ -103,17 +109,18 @@ export function stringifyRelationsInputCreate(
         annotations.isHiddenInput ||
         annotations.isHiddenInputCreate ||
         isPrimitivePrismaFieldType(field.type) ||
-        processedEnums.find((e) => e.name === field.type)
+        processedEnumsMap.has(field.type)
       ) {
         return undefined;
       }
 
       let typeboxIdType = "String";
 
-      switch (
-        allModels.find((m) => m.name === field.type)?.fields.find((f) => f.isId)
-          ?.type
-      ) {
+      const relatedIdType = allModels
+        .get(field.type)
+        ?.fields.find((f) => f.isId)?.type;
+
+      switch (relatedIdType) {
         case "String":
           typeboxIdType = "String";
           break;
@@ -124,9 +131,8 @@ export function stringifyRelationsInputCreate(
           typeboxIdType = "Integer";
           break;
         default:
-          throw new Error(
-            `Unsupported ID type: ${field.type} on model ${data.name} in relation ${field.name}`,
-          );
+          debug(`  skipping ${data.name}.${field.name} -> ${field.type} (no simple @id)`);
+          return undefined;
       }
 
       let connectString = `${getConfig().typeboxImportVariableName}.Object({
@@ -163,8 +169,12 @@ export const processedRelationsInputUpdate: ProcessedModel[] = [];
 export function processRelationsInputUpdate(
   models: DMMF.Model[] | Readonly<DMMF.Model[]>,
 ) {
+  const modelsMap = new Map<string, DMMF.Model>();
   for (const m of models) {
-    const o = stringifyRelationsInputUpdate(m, models);
+    modelsMap.set(m.name, m);
+  }
+  for (const m of models) {
+    const o = stringifyRelationsInputUpdate(m, modelsMap);
     if (o) {
       processedRelationsInputUpdate.push({
         name: m.name,
@@ -177,7 +187,7 @@ export function processRelationsInputUpdate(
 
 export function stringifyRelationsInputUpdate(
   data: DMMF.Model,
-  allModels: DMMF.Model[] | Readonly<DMMF.Model[]>,
+  allModels: Map<string, DMMF.Model>,
 ) {
   const annotations = extractAnnotations(data.documentation);
   if (
@@ -196,17 +206,18 @@ export function stringifyRelationsInputUpdate(
         annotations.isHiddenInput ||
         annotations.isHiddenInputUpdate ||
         isPrimitivePrismaFieldType(field.type) ||
-        processedEnums.find((e) => e.name === field.type)
+        processedEnumsMap.has(field.type)
       ) {
         return undefined;
       }
 
       let typeboxIdType = "String";
 
-      switch (
-        allModels.find((m) => m.name === field.type)?.fields.find((f) => f.isId)
-          ?.type
-      ) {
+      const relatedIdType = allModels
+        .get(field.type)
+        ?.fields.find((f) => f.isId)?.type;
+
+      switch (relatedIdType) {
         case "String":
           typeboxIdType = "String";
           break;
@@ -217,9 +228,8 @@ export function stringifyRelationsInputUpdate(
           typeboxIdType = "Integer";
           break;
         default:
-          throw new Error(
-            `Unsupported ID type: ${field.type} on model ${data.name} in relation ${field.name}`,
-          );
+          debug(`  skipping ${data.name}.${field.name} -> ${field.type} (no simple @id)`);
+          return undefined;
       }
 
       let stringifiedType: string;

@@ -1,10 +1,5 @@
-import { format as prettierFormat } from "prettier";
-
+// Kept for backwards compatibility — formatting is now handled by Biome in writer.ts
 export async function format(input: string) {
-  try {
-    return await prettierFormat(input, { parser: "typescript" });
-  } catch (error) {
-    console.error("Error formatting file", error);
-    return input;
-  }
+  return input;
 }
+

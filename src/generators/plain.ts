@@ -5,8 +5,9 @@ import {
 } from "../annotations/annotations";
 import { generateTypeboxOptions } from "../annotations/options";
 import { getConfig } from "../config";
+import { debug } from "../debug";
 import type { ProcessedModel } from "../model";
-import { processedEnums } from "./enum";
+import { processedEnumsMap } from "./enum";
 import {
   isPrimitivePrismaFieldType,
   type PrimitivePrismaFieldType,
@@ -17,14 +18,18 @@ import { wrapWithNullable } from "./wrappers/nullable";
 import { wrapWithOptional } from "./wrappers/optional";
 
 export const processedPlain: ProcessedModel[] = [];
+export const processedPlainMap = new Map<string, ProcessedModel>();
 
 export function processPlain(models: DMMF.Model[] | Readonly<DMMF.Model[]>) {
   for (const m of models) {
     const o = stringifyPlain(m);
     if (o) {
-      processedPlain.push({ name: m.name, stringRepresentation: o });
+      const model = { name: m.name, stringRepresentation: o };
+      processedPlain.push(model);
+      processedPlainMap.set(m.name, model);
     }
   }
+  debug(`  plain: ${processedPlain.length} of ${models.length} models`);
   Object.freeze(processedPlain);
 }
 
@@ -112,11 +117,9 @@ export function stringifyPlain(
             }),
           });
         }
-      } else if (processedEnums.find((e) => e.name === field.type)) {
+      } else if (processedEnumsMap.has(field.type)) {
         // biome-ignore lint/style/noNonNullAssertion: we checked this manually
-        stringifiedType = processedEnums.find(
-          (e) => e.name === field.type,
-        )!.stringRepresentation;
+        stringifiedType = processedEnumsMap.get(field.type)!.stringRepresentation;
       } else {
         return undefined;
       }

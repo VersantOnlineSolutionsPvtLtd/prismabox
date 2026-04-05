@@ -2,7 +2,7 @@ import { getConfig } from "./config";
 import { processedEnums } from "./generators/enum";
 import { processedInclude } from "./generators/include";
 import { processedOrderBy } from "./generators/orderBy";
-import { processedPlain } from "./generators/plain";
+import { processedPlain, processedPlainMap } from "./generators/plain";
 import { processedPlainInputCreate } from "./generators/plainInputCreate";
 import { processedPlainInputUpdate } from "./generators/plainInputUpdate";
 import {
@@ -70,15 +70,23 @@ export function mapAllModelsForWrite() {
   process(processedInclude, "Include");
   process(processedOrderBy, "OrderBy");
 
+  const relationsSet = new Set(processedRelations.map((e) => e.name));
+  const relationsInputCreateSet = new Set(
+    processedRelationsInputCreate.map((e) => e.name),
+  );
+  const relationsInputUpdateSet = new Set(
+    processedRelationsInputUpdate.map((e) => e.name),
+  );
+
   for (const [key, value] of modelsPerName) {
-    const plain = processedPlain.find((e) => e.name === key);
-    const relations = processedRelations.find((e) => e.name === key);
+    const hasPlain = processedPlainMap.has(key);
+    const hasRelations = relationsSet.has(key);
     let composite: string;
-    if (plain && relations) {
+    if (hasPlain && hasRelations) {
       composite = makeComposite([`${key}Plain`, `${key}Relations`]);
-    } else if (plain) {
+    } else if (hasPlain) {
       composite = `${key}Plain`;
-    } else if (relations) {
+    } else if (hasRelations) {
       composite = `${key}Relations`;
     } else {
       continue;
@@ -94,9 +102,7 @@ export function mapAllModelsForWrite() {
   }
 
   for (const [key, value] of modelsPerName) {
-    const create = processedRelationsInputCreate.find((e) => e.name === key);
-
-    if (create) {
+    if (relationsInputCreateSet.has(key)) {
       const composite = makeComposite([
         `${key}PlainInputCreate`,
         `${key}RelationsInputCreate`,
@@ -112,9 +118,7 @@ export function mapAllModelsForWrite() {
   }
 
   for (const [key, value] of modelsPerName) {
-    const update = processedRelationsInputUpdate.find((e) => e.name === key);
-
-    if (update) {
+    if (relationsInputUpdateSet.has(key)) {
       const composite = makeComposite([
         `${key}PlainInputUpdate`,
         `${key}RelationsInputUpdate`,

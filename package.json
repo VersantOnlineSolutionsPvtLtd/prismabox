@@ -1,6 +1,6 @@
 {
-  "name": "prismabox",
-  "version": "2.2.0",
+  "name": "@versantonlinesolutions/prismabox",
+  "version": "2.2.7",
   "license": "MIT",
   "description": "Typebox generator for prisma schema",
   "author": {
@@ -30,7 +30,7 @@
   "dependencies": {
     "@prisma/generator-helper": "^6.13.0",
     "@sinclair/typebox": "^0.34.3",
-    "prettier": "^3.6.2"
+    "@biomejs/biome": "^2.1.3"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.1.3",

@@ -116,3 +116,40 @@ If enabled, the generator will additonally output more schemes for each model wh
 Prismabox wraps nullable fields in a custom `__nullable__` method which allows `null` in addition to `undefined`. From the relevant [issue comment](https://github.com/m1212e/prismabox/issues/33#issuecomment-2708755442):
 >  prisma in some scenarios allows null OR undefined as types where optional only allows for undefined/is reflected as undefined in TS types
 
+## Fork Changes (`@versantonlinesolutions/prismabox`)
+
+Install with:
+```bash
+npm i -D @versantonlinesolutions/prismabox
+bun add -D @versantonlinesolutions/prismabox
+```
+
+The generator binary is still called `prismabox`, so your existing `provider = "prismabox"` config works as-is.
+
+### Performance Optimizations
+- **O(1) model lookups:** Replaced linear `.find()` array scans with `Map`-based lookups across all generators. For schemas with 200+ models, this eliminates millions of unnecessary iterations.
+- **Sequential file writing:** Files are written one at a time instead of all in parallel, preventing CPU/memory exhaustion in resource-constrained environments like Docker containers.
+- **Biome instead of Prettier:** Formatting now uses [Biome](https://biomejs.dev/) (Rust-native) instead of Prettier, which is orders of magnitude faster for large schemas.
+
+### Graceful handling of models without `@id`
+Models that use `@@unique` or composite keys instead of a simple `@id` field are now skipped gracefully in input model generation, instead of crashing the generator.
+
+### Debug Logging
+Set the `DEBUG` environment variable to see detailed progress output:
+```bash
+DEBUG=prismabox bunx prisma generate
+# or
+DEBUG=* bunx prisma generate
+```
+Output is written to stderr and includes per-step timing, file write progress, and skip reasons.
+
+### `disableFormatting` Option
+Disables Biome formatting of generated files for maximum speed:
+```prisma
+generator prismabox {
+  provider          = "prismabox"
+  disableFormatting = "true"
+  // ... rest of config
+}
+```
+
