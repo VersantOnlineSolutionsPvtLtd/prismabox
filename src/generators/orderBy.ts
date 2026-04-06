@@ -36,13 +36,7 @@ export function stringifyOrderBy(data: DMMF.Model) {
         ])}`;
       }
 
-      //TODO if this is a many to one relation this is the wrong schema
-      // return `${field.name}: ${getConfig().typeboxImportVariableName}.Object({_count: ${makeUnion(
-      //   [
-      //     `${getConfig().typeboxImportVariableName}.Literal('asc')`,
-      //     `${getConfig().typeboxImportVariableName}.Literal('desc')`,
-      //   ]
-      // )}})`;
+      return undefined;
     })
     .filter((x) => x) as string[];
 
