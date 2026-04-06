@@ -30,3 +30,4 @@ jobs:
           token: ${{ secrets.NPM_TOKEN }}
           package: ./dist/package.json
           tag: ${{ steps.tag.outputs.tag }}
+          access: public
