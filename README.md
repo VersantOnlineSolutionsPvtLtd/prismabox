@@ -1,15 +1,18 @@
-# prismabox
+# @versantonlinesolutions/prismabox
+
+A separately maintained fork of [prismabox](https://github.com/m1212e/prismabox) by the [meraevents.com](https://meraevents.com) team, optimized for large-scale Prisma schemas.
+
+Originally created by **Ade Yahya Prasetyo** and **m1212e**. This fork adds performance fixes for schemas with 200+ models.
+
 Generate versatile [typebox](https://github.com/sinclairzx81/typebox) schemes from your [prisma](https://github.com/prisma) schema.
 
 > Currently does not support [mongoDB composite types](https://www.prisma.io/docs/orm/prisma-schema/data-model/models#defining-composite-types)
 
-> Development is currently on hold, please see [here](https://github.com/m1212e/prismabox/issues/59) 
-
 Install it in your project,
 ```bash
-npm i -D prismabox
-pnpm i -D prismabox
-bun add -D prismabox
+npm i -D @versantonlinesolutions/prismabox
+pnpm i -D @versantonlinesolutions/prismabox
+bun add -D @versantonlinesolutions/prismabox
 ```
 
  then add
@@ -116,13 +119,7 @@ If enabled, the generator will additonally output more schemes for each model wh
 Prismabox wraps nullable fields in a custom `__nullable__` method which allows `null` in addition to `undefined`. From the relevant [issue comment](https://github.com/m1212e/prismabox/issues/33#issuecomment-2708755442):
 >  prisma in some scenarios allows null OR undefined as types where optional only allows for undefined/is reflected as undefined in TS types
 
-## Fork Changes (`@versantonlinesolutions/prismabox`)
-
-Install with:
-```bash
-npm i -D @versantonlinesolutions/prismabox
-bun add -D @versantonlinesolutions/prismabox
-```
+## What's Different in This Fork
 
 The generator binary is still called `prismabox`, so your existing `provider = "prismabox"` config works as-is.
 
