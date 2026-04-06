@@ -60,7 +60,9 @@ export function stringifyWhere(data: DMMF.Model) {
         }
       } else if (processedEnumsMap.has(field.type)) {
         // biome-ignore lint/style/noNonNullAssertion: we checked this manually
-        stringifiedType = processedEnumsMap.get(field.type)!.stringRepresentation;
+        stringifiedType = processedEnumsMap.get(
+          field.type,
+        )!.stringRepresentation;
       } else {
         return undefined;
       }
@@ -185,7 +187,9 @@ export function stringifyWhereUnique(data: DMMF.Model) {
         }
       } else if (processedEnumsMap.has(field.type)) {
         // biome-ignore lint/style/noNonNullAssertion: we checked this manually
-        stringifiedType = processedEnumsMap.get(field.type)!.stringRepresentation;
+        stringifiedType = processedEnumsMap.get(
+          field.type,
+        )!.stringRepresentation;
       } else {
         return undefined;
       }
@@ -224,7 +228,9 @@ export function stringifyWhereUnique(data: DMMF.Model) {
         }
       } else if (processedEnumsMap.has(field.type)) {
         // biome-ignore lint/style/noNonNullAssertion: we checked this manually
-        stringifiedType = processedEnumsMap.get(field.type)!.stringRepresentation;
+        stringifiedType = processedEnumsMap.get(
+          field.type,
+        )!.stringRepresentation;
       } else {
         return undefined;
       }

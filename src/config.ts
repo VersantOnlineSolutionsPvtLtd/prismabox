@@ -101,7 +101,9 @@ export function setConfig(input: unknown) {
     Value.Clean(configSchema, input);
     Value.Default(configSchema, input);
     config = Value.Decode(configSchema, Value.Convert(configSchema, input));
-    debug(`config: inputModel=${config.inputModel}, useJsonTypes=${config.useJsonTypes}, additionalProperties=${config.additionalProperties}`);
+    debug(
+      `config: inputModel=${config.inputModel}, useJsonTypes=${config.useJsonTypes}, additionalProperties=${config.additionalProperties}`,
+    );
     Object.freeze(config);
   } catch (error) {
     console.error(Value.Errors(configSchema, input).First);

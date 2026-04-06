@@ -1,6 +1,5 @@
 import { execFile } from "node:child_process";
-import { access } from "node:fs/promises";
-import { writeFile } from "node:fs/promises";
+import { access, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { promisify } from "node:util";
 import { generateBarrelFile } from "./barrel";
@@ -48,7 +47,11 @@ export async function write() {
     const biomeBin = await findBiome();
     if (biomeBin) {
       await timedAsync("biome format", async () => {
-        await execFileAsync(biomeBin, ["format", "--write", getConfig().output]);
+        await execFileAsync(biomeBin, [
+          "format",
+          "--write",
+          getConfig().output,
+        ]);
       });
     } else {
       debug("biome not found, skipping formatting");

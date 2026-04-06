@@ -131,7 +131,9 @@ export function stringifyRelationsInputCreate(
           typeboxIdType = "Integer";
           break;
         default:
-          debug(`  skipping ${data.name}.${field.name} -> ${field.type} (no simple @id)`);
+          debug(
+            `  skipping ${data.name}.${field.name} -> ${field.type} (no simple @id)`,
+          );
           return undefined;
       }
 
@@ -228,7 +230,9 @@ export function stringifyRelationsInputUpdate(
           typeboxIdType = "Integer";
           break;
         default:
-          debug(`  skipping ${data.name}.${field.name} -> ${field.type} (no simple @id)`);
+          debug(
+            `  skipping ${data.name}.${field.name} -> ${field.type} (no simple @id)`,
+          );
           return undefined;
       }
 

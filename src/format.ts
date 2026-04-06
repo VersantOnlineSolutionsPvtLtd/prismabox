@@ -2,4 +2,3 @@
 export async function format(input: string) {
   return input;
 }
-
